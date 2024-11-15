@@ -1,0 +1,72 @@
+import java.util.Scanner;
+
+class JavaProject {
+    static int[] getInput() {
+        Scanner scanner = new Scanner(System.in);
+        int[] values = new int[4];
+        System.out.println("Choose an option:");
+        System.out.println("1= DOB = YYYY-MM-DD (International format)");
+        System.out.println("2= DOB = DD-MM-YYYY (Indian format)");
+        System.out.println("3= DOB = MM-DD-YYYY (US format)");
+        System.out.println("4= AGE = YYYY-MM-DD");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Clear buffer
+
+        if (choice < 1 || choice > 4) {
+            System.out.println("Invalid choice! Try again.");
+            return getInput();
+        }
+
+        System.out.print(choice == 4 ? "Enter AGE (e.g., 20-05-15): " : "Enter DOB (e.g., 2005-07-10(International) , 26-08-2006(indian): ");
+        String input = scanner.nextLine();
+
+        char delimiter = input.contains("-") ? '-' : input.contains("/") ? '/' : '\0';
+        if (delimiter == '\0') {
+            System.out.println("Invalid delimiter! Use '-' or '/'. Try again.");
+            return getInput();
+        }
+
+        String[] parts = input.split(String.valueOf(delimiter));
+        if (parts.length != 3) {
+            System.out.println("Invalid format! Try again.");
+            return getInput();
+        }
+
+        try {
+            int part1 = Integer.parseInt(parts[0]);
+            int part2 = Integer.parseInt(parts[1]);
+            int part3 = Integer.parseInt(parts[2]);
+
+            // Adjust ordering based on choice
+            values[0] = (choice == 2) ? part3 : (choice == 3) ? part3 : part1;
+            values[1] = (choice == 3) ? part1 : part2;
+            values[2] = (choice == 2) ? part1 : part3;
+            values[3] = (choice == 4) ? 1 : 0; // Mark as AGE if choice is 4
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number format! Try again.");
+            return getInput();
+        }
+
+        return values;
+    }
+
+    public static void main(String[] args) {
+        int[] input = getInput();
+        int y = input[0], m = input[1], d = input[2];
+        int isAge = input[3];
+        int currentYear = 2024, currentMonth = 11, currentDay = 15;
+
+        if (isAge == 1) { // AGE input
+            int dobYear = currentYear - y - (m > currentMonth || (m == currentMonth && d > currentDay) ? 1 : 0);
+            int dobMonth = (currentMonth - m + 12) % 12;
+            int dobDay = (currentDay - d + 30) % 30;
+            System.out.println("Your DOB is: " + dobDay + "/" + dobMonth + "/" + dobYear);
+        } else { // DOB input
+            int ageYears = currentYear - y - (m > currentMonth || (m == currentMonth && d > currentDay) ? 1 : 0);
+            int ageMonths = (currentMonth - m + 12) % 12;
+            int ageDays = (currentDay - d + 30) % 30;
+            System.out.println("Your age is: " + ageYears + " years, " + ageMonths + " months, " + ageDays + " days.");
+        }
+    }
+}
